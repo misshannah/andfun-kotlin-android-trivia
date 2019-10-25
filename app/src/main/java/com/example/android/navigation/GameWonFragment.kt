@@ -50,17 +50,47 @@ class GameWonFragment : Fragment() {
         Toast.makeText(context,
                 "NumCorrect: ${args.numCorrect}, NumQuestions: ${args.numQuestions}",
                 Toast.LENGTH_LONG).show()
-        // TODO (01) Add setHasOptionsMenu(true)
+        // DONE (01) Add setHasOptionsMenu(true)
         // This allows onCreateOptionsMenu to be called
+
+        setHasOptionsMenu(true)
         return binding.root
     }
 
 
-    // TODO (02) Create getShareIntent method
-    // TODO (03) Create shareSuccess method
-    // TODO (04) Override and fill out onCreateOptionsMenu
+    // DONE (02) Create getShareIntent method
+    // Creating our Share Intent
+    private fun getShareIntent() : Intent {
+        var args = GameWonFragmentArgs.fromBundle(arguments!!)
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.setType("text/plain")
+                .putExtra(Intent.EXTRA_TEXT, getString(R.string.share_success_text, args.numCorrect, args.numQuestions))
+        return shareIntent
+    }
+    // DONE (03) Create shareSuccess method
+    private fun shareSuccess() {
+        startActivity(getShareIntent())
+    }
+    // DONE (04) Override and fill out onCreateOptionsMenu
     // Inflate the winner_menu and set the share menu item to invisible if the activity doesn't
     // resolve
-    // TODO (05) Override onOptionsItemSelected
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater?.inflate(R.menu.winner_menu, menu)
+        // check if the activity resolves
+        if (null == getShareIntent().resolveActivity(activity!!.packageManager)) {
+            // hide the menu item if it doesn't resolve
+            menu?.findItem(R.id.share)?.setVisible(false)
+        }
+    }
+    // DONE (05) Override onOptionsItemSelected
     // Call the shareSuccess method when the item id matches R.id.share
+    // Sharing from the Menu
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item!!.itemId) {
+            R.id.share -> shareSuccess()
+        }
+        return super.onOptionsItemSelected(item)
+    }
 }
